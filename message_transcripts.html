@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Transcripts</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f0f5;
+    --ink: #1a1714;
+    --ink-faint: #9e9890;
+    --divider: #c8c8cc;
+    --tab-bar: #1c1c1e;
+    --mila-bubble: #1d7aff;
+    --mila-text: #ffffff;
+    --alice-bubble: #e5e5ea;
+    --alice-text: #000000;
+    --bryan-bubble: #d0e8df;
+    --bryan-text: #0d2e24;
+    --mikayla-bubble: #e5dcf2;
+    --mikayla-text: #200d38;
+    --doc-bg: #fffdf7;
+    --doc-border: #c8a96e;
+    --gold: #c8a96e;
+    --flag-bg: #fff8e1;
+    --flag-border: #f0b429;
+    --flag-text: #7a4f00;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: var(--tab-bar);
+    padding: 36px 40px 0;
+  }
+  .page-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(22px, 3.5vw, 36px);
+    font-weight: 400;
+    color: #f5f2ee;
+    margin-bottom: 20px;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    border-top: 1px solid #333;
+    margin-top: 4px;
+  }
+  .tab {
+    padding: 12px 22px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .tab:hover { color: #ccc; }
+  .tab.active { color: #fff; border-bottom-color: var(--gold); }
+
+  /* ── THREAD PANELS ── */
+  .thread-panel { display: none; }
+  .thread-panel.active { display: block; }
+
+  /* ── PHONE FRAME ── */
+  .phone-frame {
+    max-width: 480px;
+    margin: 32px auto;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  }
+
+  /* ── CONTACT HEADER ── */
+  .phone-contact {
+    background: #f8f8f8;
+    padding: 10px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 0.5px solid #d0d0d5;
+  }
+  .contact-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 600; color: #fff;
+    flex-shrink: 0;
+  }
+  .avatar-alice   { background: #8c7b6b; }
+  .avatar-bryan   { background: #2a7a58; }
+  .avatar-group   { background: #7040b0; }
+  .contact-name { font-size: 13px; font-weight: 600; color: #000; }
+  .contact-sub  { font-size: 11px; color: #888; }
+
+  /* ── MESSAGES AREA ── */
+  .messages-area {
+    background: #fff;
+    padding: 16px 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .day-stamp {
+    text-align: center;
+    font-size: 11px;
+    color: #8e8e93;
+    margin: 16px 0 8px;
+    font-weight: 500;
+  }
+  .day-stamp:first-child { margin-top: 0; }
+
+  /* ── MESSAGE ROW ── */
+  .msg-row { display: flex; margin-bottom: 1px; }
+  .msg-out { justify-content: flex-end; }
+  .msg-in  { justify-content: flex-start; }
+
+  .msg-block { max-width: 75%; display: flex; flex-direction: column; }
+  .msg-out .msg-block { align-items: flex-end; }
+  .msg-in  .msg-block { align-items: flex-start; }
+
+  .sender-name { font-size: 11px; font-weight: 600; margin-bottom: 2px; padding-left: 4px; }
+  .name-mikayla { color: #7040b0; }
+  .name-alice   { color: #8c7b6b; }
+
+  /* ── BUBBLE ── */
+  .bubble {
+    padding: 8px 12px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.4;
+    word-break: break-word;
+    position: relative;
+  }
+  .bubble p { margin-bottom: 6px; }
+  .bubble p:last-child { margin-bottom: 0; }
+
+  .bubble-out     { background: var(--mila-bubble); color: var(--mila-text); border-bottom-right-radius: 4px; }
+  .bubble-alice   { background: var(--alice-bubble); color: var(--alice-text); border-bottom-left-radius: 4px; }
+  .bubble-bryan   { background: var(--bryan-bubble); color: var(--bryan-text); border-bottom-left-radius: 4px; }
+  .bubble-mikayla { background: var(--mikayla-bubble); color: var(--mikayla-text); border-bottom-left-radius: 4px; }
+
+  .msg-time { font-size: 10px; color: #8e8e93; margin-top: 2px; padding: 0 4px; }
+  .to-note  { font-size: 10px; color: #8e8e93; text-align: right; padding-right: 4px; margin-top: 10px; margin-bottom: 2px; font-style: italic; }
+  .edited-tag { font-size: 10px; color: #a07840; font-family: 'DM Mono', monospace; margin-left: 4px; }
+
+  /* ── FLAG MARKER ── */
+  .flag-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px; height: 17px;
+    background: var(--flag-border);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    margin-left: 5px;
+    cursor: pointer;
+    vertical-align: middle;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+  .flag-marker:hover { background: #c8860a; }
+
+  /* ── DOCUMENT INSET ── */
+  .doc-inset {
+    margin: 16px 0 8px;
+    background: var(--doc-bg);
+    border: 1.5px solid var(--doc-border);
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 92%;
+    align-self: flex-end;
+  }
+  .doc-header-bar {
+    background: #1a1714;
+    color: var(--gold);
+    padding: 9px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .doc-body { padding: 16px 18px; font-size: 12.5px; line-height: 1.65; color: #1a1714; }
+  .doc-body h2 { font-family: 'DM Serif Display', serif; font-size: 17px; font-weight: 400; margin-bottom: 2px; }
+  .doc-subtitle { font-family: 'DM Mono', monospace; font-size: 9.5px; color: #9e9890; margin-bottom: 14px; letter-spacing: 0.04em; }
+  .doc-section-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a7050; margin: 14px 0 4px; padding-bottom: 3px; border-bottom: 1px solid #e8e0d4; }
+  .doc-body p { margin-bottom: 8px; }
+  .doc-body ul { padding-left: 16px; margin-bottom: 8px; }
+  .doc-body ul li { margin-bottom: 4px; }
+  .doc-sig { margin-top: 16px; padding-top: 14px; border-top: 1px solid #ddd8d0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .doc-sig-name { font-weight: 700; font-size: 11px; margin-bottom: 3px; }
+  .doc-sig-underline { border-bottom: 1px solid #aaa; height: 22px; margin: 4px 0; }
+  .doc-sig-line { font-family: 'DM Mono', monospace; font-size: 9px; color: #9e9890; }
+
+  /* ── NOTES TAB CONTENT ── */
+  .notes-wrap {
+    max-width: 720px;
+    margin: 36px auto;
+    padding: 0 24px 80px;
+  }
+  .notes-section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .notes-section-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 28px;
+  }
+
+  /* ── NOTE CARD ── */
+  .note-card {
+    background: #fff;
+    border-radius: 16px;
+    border-left: 4px solid var(--flag-border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .note-card-header {
+    background: var(--flag-bg);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #fde88a;
+  }
+  .note-number {
+    width: 22px; height: 22px;
+    background: var(--flag-border);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .note-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--flag-text);
+    font-weight: 700;
+  }
+  .note-card-body { padding: 18px 20px; }
+
+  .note-claim {
+    background: #f5f5f5;
+    border-left: 3px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-style: italic;
+    color: #444;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .note-claim-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 5px;
+  }
+
+  .note-body-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #1a1714;
+  }
+  .note-body-text p { margin-bottom: 10px; }
+  .note-body-text p:last-child { margin-bottom: 0; }
+
+  /* ── USFS RESEARCH BLOCK ── */
+  .research-block {
+    background: #fff;
+    border-radius: 16px;
+    border-left: 4px solid #2a7a58;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .research-header {
+    background: #edf7f2;
+    padding: 12px 18px;
+    border-bottom: 1px solid #b8dece;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .research-icon {
+    font-size: 16px;
+  }
+  .research-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a5c3a;
+    font-weight: 700;
+  }
+  .research-body { padding: 18px 20px; }
+  .research-body h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    color: #1a1714;
+  }
+  .research-body p { font-size: 13.5px; line-height: 1.7; color: #1a1714; margin-bottom: 10px; }
+  .research-body p:last-child { margin-bottom: 0; }
+
+  .usfs-quote {
+    background: #f0faf5;
+    border-left: 3px solid #2a7a58;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-style: italic;
+    color: #0d2e24;
+    margin: 12px 0;
+    line-height: 1.5;
+  }
+
+  .research-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin: 14px 0;
+  }
+  .research-table th {
+    background: #f0faf5;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a5c3a;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #b8dece;
+  }
+  .research-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e8f5ee;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .research-table tr:last-child td { border-bottom: none; }
+  .tag-notfound { color: #c0392b; font-weight: 700; font-family: 'DM Mono', monospace; font-size: 10px; }
+  .tag-confirmed { color: #2a7a58; font-weight: 700; font-family: 'DM Mono', monospace; font-size: 10px; }
+  .tag-etiquette { color: #8a6000; font-weight: 700; font-family: 'DM Mono', monospace; font-size: 10px; }
+
+  .divider-line {
+    height: 1px;
+    background: #e8e8ec;
+    margin: 32px 0;
+  }
+
+  @media (max-width: 520px) {
+    .phone-frame { border-radius: 0; margin: 0; box-shadow: none; }
+    .tab { padding: 10px 14px 8px; font-size: 12px; }
+    .notes-wrap { padding: 0 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-eyebrow">Compiled June 2026</div>
+  <div class="page-title">Message Transcripts</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('alice')">Mila &amp; Alice</div>
+    <div class="tab" onclick="switchTab('bryan')">Mila &amp; Bryan</div>
+    <div class="tab" onclick="switchTab('group')">Team Mikayla</div>
+    <div class="tab" onclick="switchTab('notes')">Notes &amp; Research</div>
+  </div>
+</div>
+
+
+<!-- ══ THREAD: MILA & ALICE ══ -->
+<div class="thread-panel active" id="thread-alice">
+  <div class="phone-frame">
+    <div class="phone-contact">
+      <div class="contact-avatar avatar-alice">A</div>
+      <div>
+        <div class="contact-name">Coach Alice Gee</div>
+        <div class="contact-sub">iMessage</div>
+      </div>
+    </div>
+    <div class="messages-area">
+
+      <div class="day-stamp">Monday, May 25</div>
+
+      <div class="to-note">→ to Alice</div>
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Hi Alice, I wanted to run something by you before we finalize booking a trial lesson with Brian Santiago. You might know, he was the director of Disney on Ice, and now he's made the crossover rink his home base. This is really significant for Mikayla because she's about to start an apprenticeship at the crossover, as a junior coach. Since she'll be there so much, having a connection with Brian could be a huge benefit down the line.</p>
+            <p>She really connected with his choreography at the seminar, and we think there's a lot of potential for future event programs. I want to be super clear — we're not talking about him being a coach right now. This would just be a one-time trial, and if the fit is right, it could open doors for special choreography projects in the future.</p>
+            <p>We really value your perspective and just want to keep it all open, so if you have any concerns or advice, we're all ears. Thank you so much!</p>
+          </div>
+          <div class="msg-time">9:23 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>Hi Ms. Mila, I would be fine with Mikayla taking a trial lesson if she only works on skating skills and practice choreography with Brian. As head coach, <span class="flag-marker" onclick="switchTab('notes', 1)" title="See Note 1">1</span> I only allow secondary coaches do touch ups to choreography as placement of jumps and spins matter and may shift throughout the season based on her progress. <span class="flag-marker" onclick="switchTab('notes', 2)" title="See Note 2">2</span></p>
+            <p>Moving forward, please have a conversation with me first before reaching out or speaking with other coaches first. This is the standard amongst skating coaches. <span class="flag-marker" onclick="switchTab('notes', 3)" title="See Note 3">3</span></p>
+          </div>
+          <div class="msg-time">9:29 PM</div>
+        </div>
+      </div>
+
+      <div class="day-stamp">Tuesday, May 26</div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>Hi Ms. Mila, I did not realize Mikayla had already scheduled a lesson with Bryan this morning. When you mentioned potential trial lesson, <span class="flag-marker" onclick="switchTab('notes', 4)" title="See Note 4">4</span> I was under the impression that you were still discussing that with him.</p>
+            <p>I went on live barn to see Mikayla's practice since she told me she landed her double loop today. But I also saw her doing jumps with Bryan. I explicitly said that he would ONLY work with skating skills and choreography. The only other jump technician I work with is Coach Rick. If we cannot adhere to this, I am not comfortable with sharing coaching with Bryan.</p>
+            <p>I am still in the process of developing Mikayla's new jumps. When coaches with different techniques try to fix one jump, we usually get stunted progress. This is why I only work with Coach Rick as we complement each other's work.</p>
+            <p>I am very disappointed this situation has occurred. I have given Mikayla instructions to not put axel on a tight pattern when she enters with speed as it'll make her jump smaller and harder to expand later on. Her entrance got more stiff. <span class="flag-marker" onclick="switchTab('notes', 5)" title="See Note 5">5</span> I did not give approval to work on double Salchow yet because she has fundamental improvements necessary with her follow through and use of edge pressure to jump. All of these bad habits were emphasized during her time in today's lesson.</p>
+            <p>As head coach, I am supposed to be in direct contact with the secondary coaches to make sure the quality of practice is maintained within our current goals. Because of the disregard to my instructions regarding what Bryan is allowed to work on with Mikayla and the fact they started working on a new double jump without my approval, <span class="flag-marker" onclick="switchTab('notes', 6)" title="See Note 6">6</span> I cannot have Mikayla work with him moving forward. If she would like to continue lessons with him, I will be forced to drop future lessons with Mikayla alongside Coach Rick.</p>
+          </div>
+          <div class="msg-time">6:58 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Hi Alice, just to clarify, Mikayla's lesson with Bryan was scheduled after we discussed it and after I understood you were okay with a trial lesson. Sorry I couldn't respond earlier today. I'd like a little time to think through the rest of your message so I can respond thoughtfully. Talk soon. Good night.</p>
+          </div>
+          <div class="msg-time">10:31 PM</div>
+        </div>
+      </div>
+
+      <div class="day-stamp">Friday, May 29</div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>Hi Ms. Mila, just following up on our previous conversation. I would like to hear back as soon as possible. I need to know where we stand before I set my summer schedule. Thank you. <span class="flag-marker" onclick="switchTab('notes', 7)" title="See Note 7">7</span></p>
+          </div>
+          <div class="msg-time">8:56 AM</div>
+        </div>
+      </div>
+
+      <div class="day-stamp">Saturday, May 30</div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Hi Alice,</p>
+            <p>I want to address something important first. Our group chat with Mikayla is a space for scheduling and coaching communication. Adult conversations between us should stay between us. I would appreciate you keeping it that way going forward.</p>
+            <p>I also want to be clear — Mikayla did nothing wrong. Please do not bring up Bryan or anything related to that lesson with her. She followed her mother's guidance and that is exactly what she should do. I want her to feel fully supported and focused on her skating, not caught in the middle of adult conversations.</p>
+            <p>Regarding the summer schedule — Mikayla is available mornings for lessons. She will be working at The Crossover in the evenings. Please go ahead and build the schedule around that.</p>
+            <p>Thank you.</p>
+          </div>
+          <div class="msg-time">9:11 AM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>Hi Ms. Mila, I had given since Tuesday for a response regarding the situation. When I work with a skater, I need them to be aware of my expectations when practicing and working with another coach. She should be aware that she is not at fault, but that does not exclude her knowledge that what happened was unacceptable.</p>
+            <p>She is more than capable of taking charge of her skating, with my instructions and your guidance. She cannot do that if she is unaware of what is happening.</p>
+            <p>I am still at a loss as to what happened between the communication we had to what happened with Bryan. I need explicit confirmation on how we will navigate these situations in the future.</p>
+          </div>
+          <div class="msg-time">10:26 AM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>I want to be clear: Mikayla is not to be brought into this conversation in any way. That boundary is not negotiable.</p>
+            <p>I also want to make sure I understand you correctly. Could you share your specific question or concern directly? I want to make sure I am responding to exactly what you need, rather than assumptions on either side.</p>
+            <p>Thank you.</p>
+          </div>
+          <div class="msg-time">~10:30 AM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>As per my previous texts on Tuesday, my clear instructions when having a trial lesson with Bryan was for only skating skills and choreography. Only jumps were worked on, not only they worked on a new jump I have not given permission to work on yet. This is a complete disregard of my coaching and position as a head coach. When I tried to address it, I did not get a response for over 3 days. On top of that, I am put in a position where I cannot communicate the mistake in a constructive manner to my athlete so this will not repeat itself in the future. Feedback is necessary so there is no miscommunication between coach and athlete.</p>
+            <p>If my role as a coach is not respected, I am not comfortable continuing our lessons together. As previously stated, this includes working with other coaches on my team like Coach Rick.</p>
+          </div>
+          <div class="msg-time">time unknown</div>
+        </div>
+      </div>
+
+      <div class="day-stamp">Sunday, May 31</div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Hi Alice,</p>
+            <p>I hear your concerns and I appreciate you sharing them. Mikayla's progress under your coaching has been real and I value that.</p>
+            <p>I also want to acknowledge that the trial lesson with Bryan created confusion — and I understand why that was frustrating from your position as her coach.</p>
+            <p>I respect your position as her coach and I hope we can move forward with Mikayla's best interest at the center of everything we do.</p>
+          </div>
+          <div class="msg-time">6:23 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>Hi Ms. Mila, thank you for getting back to me. I don't think my point was quite heard. I'm not looking for an apology or to get Mikayla involved in the current situation between us. That said, your response does not talk about what went wrong and how we will avoid it in the future.</p>
+            <p>I need your written and clear agreement that you will not seek out other coaches without FIRST talking to me for permission. This does not mean, talk to the coach first to see if they have time, and then ask me for permission afterwards. I been notified both times by Coach Rick when you approached him and know he instructed you to talk with me. <span class="flag-marker" onclick="switchTab('notes', 8)" title="See Note 8">8</span> I was never notified or had this discussion with you.</p>
+            <p>For the future, I will keep all conversations in the group chat with Mikayla. She needs to be the one to take charge of her skating. She cannot do that if you are having a separate conversation with me and withholding my instructions.</p>
+            <p>If you do not want me to directly speak to Mikayla about this situation, then you should be the one to explain what happened on your end. She should know the mistake and how she will avoid moving forward. That is, when working with a secondary coach, the head coach is in control of the goals and style of technique used, unless otherwise specified. <span class="edited-tag">[Edited]</span></p>
+            <p>Until these 3 actions are met, I will not be placing Mikayla on my schedule. This past week should've been completely avoidable with proper and timely communication. I will not tolerate this kind of behavior again.</p>
+          </div>
+          <div class="msg-time">8:44 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Hi Alice, here is the agreement you asked for. Please review and let me know if you have any comments. Once you are satisfied, please sign and return it to me. Upon receipt of your signed copy I will sign and return it to you.</p>
+          </div>
+          <div class="msg-time">11:23 PM</div>
+        </div>
+      </div>
+
+      <!-- AGREEMENT -->
+      <div class="doc-inset">
+        <div class="doc-header-bar">📎 Coaching Agreement Through Boston</div>
+        <div class="doc-body">
+          <h2>Coaching Agreement</h2>
+          <div class="doc-subtitle">Mila DeSapio &amp; Coach Alice Gee · Effective upon signing by both parties</div>
+
+          <div class="doc-section-title">Purpose</div>
+          <p>This agreement establishes clear communication expectations between Mila DeSapio and Coach Alice Gee for the period leading up to and including the Excel Boston competition in July 2026. Its goal is to ensure Mikayla's preparation and competition experience is focused, stable, and successful.</p>
+
+          <div class="doc-section-title">Communication Protocol</div>
+          <p>Before seeking out or engaging with any other coach, Mila DeSapio will first obtain permission from Coach Alice Gee. This does not apply to casual conversation, general interaction within the skating community, or normal rink environment encounters with other coaches.</p>
+
+          <div class="doc-section-title">Technical Coaching and Corrections</div>
+          <p>Coach Alice Gee is responsible for all technical coaching decisions regarding Mikayla's skating through July 20, 2026. Mikayla is entitled to receive all technical feedback in a constructive and focused manner. Coaching sessions and all coach-athlete interactions remain focused on skating development only.</p>
+
+          <div class="doc-section-title">Mikayla's Role</div>
+          <p>Mikayla's role is to focus on her skating development, her training, and her competition preparation. She is not to be involved in communications or disputes between Coach Alice Gee and Mila DeSapio or her family. Adult conversations stay between adults.</p>
+
+          <div class="doc-section-title">Protecting Mikayla's Experience</div>
+          <p>Coach Alice Gee agrees to maintain a positive, focused, and encouraging coaching environment for Mikayla at all times. Any concerns, disputes, or grievances are not to be introduced into coaching sessions or communicated to Mikayla in any form, directly or indirectly.</p>
+
+          <div class="doc-section-title">Lesson Frequency</div>
+          <p>Both parties agree that Mikayla will have no less than one and no more than three lessons per week with Coach Alice Gee through July 20, 2026.</p>
+
+          <div class="doc-section-title">Existing Training Team</div>
+          <p>Mikayla's existing off-ice training with Coach Rick Reyor and Coach Chris Browne continues as established and is not subject to the communication protocol outlined in this agreement.</p>
+
+          <div class="doc-section-title">Coach Alice Gee's Commitment</div>
+          <p>Coach Alice Gee agrees to:</p>
+          <ul>
+            <li>Remain as Mikayla's coach of record for the Boston Excel competition</li>
+            <li>Be physically present and provide active coaching support at the Boston Excel competition in July 2026</li>
+            <li>Provide consistent coaching support of no less than one and no more than three lessons per week through July 20, 2026</li>
+            <li>Maintain a professional and respectful tone in all communications</li>
+          </ul>
+
+          <div class="doc-section-title">Breach of Agreement</div>
+          <p>If either party fails to honor the terms of this agreement, the agreement is considered void and both parties are free to act accordingly.</p>
+
+          <div class="doc-section-title">Duration</div>
+          <p>This agreement covers the period from the date of signing through July 20, 2026. Both parties are free to reassess the coaching arrangement following Boston with no obligation on either side.</p>
+
+          <div class="doc-sig">
+            <div>
+              <div class="doc-sig-name">Mila DeSapio</div>
+              <div class="doc-sig-underline"></div>
+              <div class="doc-sig-line">Date: _______________</div>
+            </div>
+            <div>
+              <div class="doc-sig-name">Coach Alice Gee</div>
+              <div class="doc-sig-underline"></div>
+              <div class="doc-sig-line">Date: _______________</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-alice">
+            <p>Hi Ms. Mila, I think it is best for us to terminate our current coaching partnership. It was a pleasure working with your daughter. I wish her the best in her future training.</p>
+          </div>
+          <div class="msg-time">after 11:23 PM</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ THREAD: MILA & BRYAN ══ -->
+<div class="thread-panel" id="thread-bryan">
+  <div class="phone-frame">
+    <div class="phone-contact">
+      <div class="contact-avatar avatar-bryan">B</div>
+      <div>
+        <div class="contact-name">Bryan Ice Skating Santiago</div>
+        <div class="contact-sub">iMessage</div>
+      </div>
+    </div>
+    <div class="messages-area">
+
+      <div class="day-stamp">Monday, May 25</div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-bryan">
+            <p>Just to double check, her coach is ok with her taking a lesson from me? I just don't want to step on anyone's toes.</p>
+          </div>
+          <div class="msg-time">6:54 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>I'm crafting message to Alice now. We just got home - sorry for the delay. what is your last name?</p>
+          </div>
+          <div class="msg-time">9:13 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-bryan">
+            <p>No problem and no rush. My last name is Santiago</p>
+          </div>
+          <div class="msg-time">9:14 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Thank you. Waiting for her response.</p>
+          </div>
+          <div class="msg-time">9:27 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>We're good to go 👍</p>
+          </div>
+          <div class="msg-time">10:01 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-bryan">
+            <p>Okay! See you in the morning. Can we possibly start a little earlier?</p>
+          </div>
+          <div class="msg-time">10:02 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-bryan">
+            <p>9:15?</p>
+          </div>
+          <div class="msg-time">10:02 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-out">
+        <div class="msg-block">
+          <div class="bubble bubble-out">
+            <p>Perfect! See you tomorrow</p>
+          </div>
+          <div class="msg-time">10:04 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="bubble bubble-bryan">
+            <p>See you then</p>
+          </div>
+          <div class="msg-time">10:04 PM</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ THREAD: GROUP CHAT ══ -->
+<div class="thread-panel" id="thread-group">
+  <div class="phone-frame">
+    <div class="phone-contact">
+      <div class="contact-avatar avatar-group">TM</div>
+      <div>
+        <div class="contact-name">Team Mikayla</div>
+        <div class="contact-sub">Mila, Coach Alice, Mikayla</div>
+      </div>
+    </div>
+    <div class="messages-area">
+
+      <div class="day-stamp">Friday, May 29</div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="sender-name name-mikayla">Mikayla</div>
+          <div class="bubble bubble-mikayla">
+            <p>Hi Coach Alice! I have secured my job/apprenticeship at the crossover as a Jr. LTS coach. Carly said that she will send me my shift schedule, and once I will know my hours I will let you know.</p>
+          </div>
+          <div class="msg-time">12:13 PM</div>
+        </div>
+      </div>
+
+      <div class="msg-row msg-in">
+        <div class="msg-block">
+          <div class="sender-name name-alice">Coach Alice</div>
+          <div class="bubble bubble-alice">
+            <p>Thanks for the update Mikayla! Just so we're all on the same page, I am finishing up a conversation with your mom about the situation with Bryan. Once I get a confirmation on what's going to happen moving forward, I'll work on the summer schedule.</p>
+          </div>
+          <div class="msg-time">1:52 PM</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ NOTES & RESEARCH ══ -->
+<div class="thread-panel" id="thread-notes">
+  <div class="notes-wrap">
+
+    <div style="margin-bottom:32px; margin-top:8px;">
+      <div class="notes-section-title">Notes &amp; Research</div>
+      <div class="notes-section-sub">Factual corrections · USFS policy findings · Context</div>
+    </div>
+
+    <!-- NOTE 1 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">1</div>
+        <div class="note-card-label">Context — "As Head Coach" — A Role That Was Never Defined</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's message (Monday, May 25, 9:29pm)</div>
+        <div class="note-claim">"As head coach, I only allow secondary coaches do touch ups to choreography..."</div>
+        <div class="note-body-text">
+          <p>From the very beginning, Mila made clear to Alice that the family was new to the figure skating world and didn't know how things worked — and that they were heavily relying on Alice's guidance. No one ever explained the concept of a head coach, what the role entailed, what authority it carried, or what agreeing to it would mean in practice.</p>
+          <p>The term simply appeared over time, self-asserted, as though its meaning and implications were obvious. There was no conversation, no agreement, no moment where Mila said "yes, I understand this role and I accept these terms." It rolled in quietly and then was treated as established fact.</p>
+          <p>There was also a dynamic that made it harder to ask questions. Alice was patient — but it sometimes felt to Mila as though the questions weren't entirely welcome, as if navigating a newcomer's learning curve was more of a burden than a natural part of the relationship. So Mila tried not to bring questions to Alice unless no one else could answer them. For much of what she needed to understand, she turned to other parents and — most significantly — to Cindy Chapa. The contrast was striking: Cindy was genuinely enthusiastic, visibly happy about Mikayla's progress, and wanted to help. She didn't just answer questions — she opened doors. The most meaningful orientation Mikayla received about her competitive path came not from her coach, but from someone who simply cared.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 2 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">2</div>
+        <div class="note-card-label">Context — Alice's Approval Message</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's message (May 25, 9:29pm)</div>
+        <div class="note-claim">"I would be fine with Mikayla taking a trial lesson if she only works on skating skills and practice choreography with Brian. As head coach, I only allow secondary coaches do touch ups to choreography as placement of jumps and spins matter and may shift throughout the season based on her progress."</div>
+        <div class="note-body-text">
+          <p>Alice's approval message was, as usual, convoluted and vague. Mila reread it several times trying to understand exactly what she was and wasn't permitted to tell Bryan. The only thing that came through clearly was that Alice said yes.</p>
+          <p>The phrase "skating skills" in particular was puzzling — isn't everything you do on ice with skates on a skating skill? What else would there be? And "practicing choreography" made even less sense in this context. This wasn't a choreography session — it was a get-to-know-you lesson, where Mikayla would naturally show what she can do and what she's been working on. The point was simply to see if she and Bryan connected, if there was a vibe worth building on.</p>
+          <p>Mila considered sharing Alice's message directly with Bryan so he could read the restrictions himself — but it was immediately clear that doing so would come across badly and dampen the excitement of a lesson that was meant to be a positive, exploratory experience for Mikayla. So Mila took full responsibility for communicating the parameters, kept things light, and trusted that this was simply about Mikayla connecting with Bryan and feeling the vibe.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 3 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">3</div>
+        <div class="note-card-label">Factual Dispute — "Industry Standard" Claim</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's claim</div>
+        <div class="note-claim">"Moving forward, please have a conversation with me first before reaching out or speaking with other coaches first. This is the standard amongst skating coaches."</div>
+        <div class="note-body-text">
+          <p>This claim is inaccurate. The U.S. Figure Skating Coaching Standards of Professionalism contain no rule requiring an athlete or parent to obtain permission from their coach before speaking with or consulting another coach. Alice presented a personal preference as if it were an industry-wide obligation — it is not.</p>
+          <p>In fact, the actual USFS standard runs in the opposite direction: it explicitly protects the athlete's right to consult other coaches and places the professional obligation on coaches, not families. See the USFS Research section below for the full findings.</p>
+          <p>It is also worth noting that prior to scheduling the Bryan trial lesson, every reasonable courtesy was extended: Alice was informed in advance, the purpose was explained clearly, her perspective was invited, the lesson was framed as a one-time trial, and Bryan himself confirmed Alice's approval before proceeding. This conduct exceeded even the informal etiquette standards described in non-USFS sources.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 4 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">4</div>
+        <div class="note-card-label">Factual Dispute — "Potential Trial Lesson" Misread / Lesson Timing</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's claim</div>
+        <div class="note-claim">"I did not realize Mikayla had already scheduled a lesson with Bryan this morning. When you mentioned potential trial lesson, I was under the impression that you were still discussing that with him."</div>
+        <div class="note-body-text">
+          <p>Mila did use the word "potential" — but in reference to future event programs with Bryan, not the trial lesson. "Potential for future event programs" and "potential trial lesson" are two very different things. Alice lifted the word from one context and applied it to another — framing Mila as someone who proceeded without clarity, when in fact the lesson was planned, communicated, and approved before anything was scheduled.</p>
+          <p>The sequence is documented in the Bryan thread: Mila messaged Alice at 9:23pm, Alice responded with approval at 9:29pm, and only after receiving that approval did Mila confirm with Bryan at 10:01pm. The lesson was scheduled as a direct result of Alice's green light — not before it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 5 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">5</div>
+        <div class="note-card-label">Irrelevant — Private Coach-Athlete Instruction Introduced</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's claim</div>
+        <div class="note-claim">"I have given Mikayla instructions to not put axel on a tight pattern when she enters with speed as it'll make her jump smaller and harder to expand later on. Her entrance got more stiff."</div>
+        <div class="note-body-text">
+          <p>This has nothing to do with the Bryan trial lesson, and nothing to do with Mila. This is a technical instruction Alice gave Mikayla in their own coaching sessions — a private coach-athlete conversation that Alice is now introducing into a dispute with Mila as if it were evidence of something going wrong.</p>
+          <p>Mila was not present for that instruction, was not involved in delivering it, and has no way to ensure it was or wasn't followed during a separate lesson. Bringing it here conflates two entirely different relationships and contexts.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 6 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">6</div>
+        <div class="note-card-label">Factual Dispute — "New Double Jump Without My Approval"</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's claim</div>
+        <div class="note-claim">"They started working on a new double jump without my approval."</div>
+        <div class="note-body-text">
+          <p>Mikayla was already working on her double jump — this was not something introduced by Bryan. From what Mila observed, Mikayla was showing Bryan what she was already doing and what she had been working on. This is a natural part of any introductory lesson: a skater demonstrates her current skills so the other person can understand where she is.</p>
+          <p>Framing this as Bryan teaching Mikayla a new unauthorized jump misrepresents what actually happened. Mikayla brought her own existing work to the session. Bryan did not introduce something new — he was shown what was already there.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 7 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">7</div>
+        <div class="note-card-label">Context — Friday Follow-Up & The Group Chat</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's message (Friday, May 29, 8:56am)</div>
+        <div class="note-claim">"Just following up on our previous conversation. I would like to hear back as soon as possible. I need to know where we stand before I set my summer schedule."</div>
+        <div class="note-body-text">
+          <p>Alice was aware that Mila was out of town — she had been informed in advance that the family would be away Thursday through Sunday, and lessons had been canceled specifically because of the trip. The follow-up arriving under those circumstances was unexpected. More than that, Alice's Tuesday message was dense, emotionally loaded, and contained several claims that needed to be carefully unpacked before any thoughtful response was possible. That kind of message takes time to process — not because of avoidance, but because of the care required to respond to it correctly.</p>
+          <p>On the schedule itself: Alice was waiting on information about Mikayla's availability before she could finalize her summer plans. But Mikayla was in the same position — she was waiting to hear from Carly at The Crossover about her shift schedule before she could pass anything useful along to Alice. There was nothing to report yet.</p>
+          <p>As soon as Mikayla heard from Carly, she immediately posted the update in the Team Mikayla group chat — specifically to give Alice what she needed to move forward with scheduling. It was a thoughtful, timely act on Mikayla's part, done with Alice's needs in mind.</p>
+          <p>Alice's response was to use that opening to bring the Bryan situation into the group chat — telling Mikayla directly that she was "finishing up a conversation with your mom about the situation with Bryan." A space Mikayla had just used to be helpful became the place where an adult conflict was dropped on her. This prompted Mila's Saturday message drawing a clear boundary around the group chat. It also added another layer to an already complicated situation — further extending the time needed to respond thoughtfully to Alice's original Tuesday message.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE 8 -->
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-number">8</div>
+        <div class="note-card-label">Factual Dispute — "Notified Both Times by Coach Rick"</div>
+      </div>
+      <div class="note-card-body">
+        <div class="note-claim-label">Alice's claim</div>
+        <div class="note-claim">"I been notified both times by Coach Rick when you approached him and know he instructed you to talk with me. I was never notified or had this discussion with you."</div>
+        <div class="note-body-text">
+          <p>This characterization is incorrect and omits the full context of how the relationship with Coach Rick developed — a process that was transparent and sequential from the beginning.</p>
+          <p><strong>How it actually unfolded:</strong></p>
+          <p>Early on in Mikayla's training, Mila told Alice directly that Mikayla's goal was to eventually have Coach Rick as a second coach — so that when the time came, Alice would already be aware. Alice was the first person informed of this intention, not the last.</p>
+          <p>Mila then told Rick the same thing, and also told him that she had already discussed it with Alice. Shortly after, Alice was asked whether Mikayla could join Rick's off-ice training sessions. Alice agreed, and Mikayla began attending. At some point Alice informed Mila that she had placed Mikayla on a waiting list for Rick's coaching, with one skater ahead of her.</p>
+          <p>The second conversation Alice references occurred in late May, when Mila told Rick that Mikayla was excited and looking forward to working more closely with him. Mila also shared Mikayla's ambitious goal — to make the National Development Team — and said she wanted to make sure that by fall, they had a plan in place to work toward that. Rick said he would speak with Alice, since she knows Mikayla's skating better, and they would reconnect. Mila said there was no rush — the priority was finishing Excel first.</p>
+          <p><strong>Why Rick, and not Alice, on this topic:</strong> Alice had never once asked Mikayla what her goals were. Her original plan for Mikayla was to compete in one competition in 2026 and see if she liked it — a very conservative baseline that did not reflect Mikayla's actual ambitions. It was Cindy Chapa, President of AFSC, who provided the guidance and encouragement that opened the door to Excel and gave Mikayla's goals real direction. The fact that Mikayla's own coach was unaware of her goals — and that another person entirely had to step in to provide that vision — is a significant gap. Discussing long-term planning directly with Rick, who was already part of Mikayla's team, was a natural and reasonable step.</p>
+          <p>Alice's framing — that she was "notified" by Rick as if these were covert approaches — misrepresents what were open, good-faith conversations about Mikayla's future.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <!-- USFS RESEARCH -->
+    <div class="research-block">
+      <div class="research-header">
+        <div class="research-icon">📋</div>
+        <div class="research-label">USFS Coaching Standards — Research Findings</div>
+      </div>
+      <div class="research-body">
+
+        <h3>What USFS Actually Says</h3>
+        <p><strong>Source: U.S. Figure Skating Coaching Standards of Professionalism</strong></p>
+        <p>No rule was found requiring an athlete or parent to obtain permission from their coach before speaking with, consulting, or taking a lesson from another coach. The official USFS standard states:</p>
+        <div class="usfs-quote">"Coaches will recognize the Participant's right to change coaching arrangements or consult with other coaches/advisors."</div>
+        <p>This obligation is placed on the coach, not the family. It explicitly protects the athlete's right to consult other coaches.</p>
+
+        <h3 style="margin-top:18px;">Third-Party Sources — Etiquette, Not Rules</h3>
+        <p>Two non-USFS sources describe a professional etiquette expectation that coaches communicate with one another and respect existing relationships. These sources are skatereddeer.com (Red Deer Skating Club Code of Ethics) and Law Insider (Coach Ethical Conduct). Importantly, this etiquette obligation applies to coaches — not to athletes or families — and neither source is a USFS document.</p>
+
+        <h3 style="margin-top:18px;">Rule vs. Etiquette</h3>
+        <table class="research-table">
+          <tr>
+            <th>Statement</th>
+            <th>Status</th>
+            <th>Source</th>
+          </tr>
+          <tr>
+            <td>Athlete must get permission from coach before talking to another coach</td>
+            <td><span class="tag-notfound">NOT FOUND</span></td>
+            <td>No USFS rule exists</td>
+          </tr>
+          <tr>
+            <td>Athlete may consult other coaches</td>
+            <td><span class="tag-confirmed">EXPLICITLY PROTECTED</span></td>
+            <td>USFS Coaching Standards of Professionalism</td>
+          </tr>
+          <tr>
+            <td>Coaches should communicate professionally and respect existing relationships</td>
+            <td><span class="tag-etiquette">ETIQUETTE ONLY</span></td>
+            <td>Non-USFS sources (applies to coaches, not families)</td>
+          </tr>
+        </table>
+
+        <h3 style="margin-top:18px;">Bottom Line</h3>
+        <p>Alice asserted a rule that does not exist in USFS policy. The actual USFS standard runs in the opposite direction — it explicitly protects the athlete's right to consult other coaches and places the professional obligation on coaches, not families. The demand for written pre-approval before any coach contact has no basis in USFS policy.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+function switchTab(id, noteNum) {
+  const ids = ['alice','bryan','group','notes'];
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('.thread-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'thread-' + id);
+  });
+  if (noteNum) {
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.note-card');
+      const target = cards[noteNum - 1];
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+</script>
+</body>
+</html>
